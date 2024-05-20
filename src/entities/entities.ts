@@ -45,13 +45,41 @@ export class Collector extends BaseEntity {
       (creature) => this.pos.distanceTo(creature.pos) <= range
     );
   }
+
+  catchRandomCreature(creatures: Creature[], range: number): void {
+    const nearbyCreatures = this.getNearbyCreatures(creatures, range);
+    if (nearbyCreatures.length > 0) {
+      const randomIndex = Math.floor(Math.random() * nearbyCreatures.length);
+      const creature = nearbyCreatures[randomIndex];
+      if (creature.isFree()) {
+        this.catchCreature(creature);
+        console.log(`${this.id} caught a ${creature.id}`);
+      } else {
+        console.log(`${creature.id} was already caught`);
+      }
+    }
+  }
 }
 
 export abstract class Creature extends BaseEntity {
+  private isCatch = false;
   abstract minCollectionRange: number;
 
   constructor(data: BaseEntity) {
     super(data);
+  }
+
+  catch(): boolean {
+    if (this.isCatch) {
+      return false;
+    }
+
+    this.isCatch = true;
+    return true;
+  }
+
+  isFree(): boolean {
+    return !this.isCatch;
   }
 }
 
